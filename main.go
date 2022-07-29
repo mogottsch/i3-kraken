@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mogottsch/i3kraken/i3utils"
 	"github.com/mogottsch/i3kraken/osutils"
@@ -42,6 +43,16 @@ func main() {
 	fmt.Println(sessionizerRes)
 
 	neoVideWmClass := i3utils.GenerateNeoVideWmClassForDir(sessionizerRes)
+
+	_, err = i3utils.MoveToWorkspaceByWmClass(
+		neoVideWmClass,
+		activeWorkspace)
+	// if the workspace was moved it already exists and therefore we are
+	// finished
+	if err == nil {
+		os.Exit(0)
+	}
+
 	_, err = i3utils.LaunchNeoVide(
 		activeWorkspace,
 		sessionizerRes,
