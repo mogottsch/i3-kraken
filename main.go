@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"os"
 
 	"github.com/mogottsch/i3kraken/i3utils"
 	"github.com/mogottsch/i3kraken/osutils"
+	"go.i3wm.org/i3/v4"
 )
 
 const SESSIONIZER_COMMAND = "find " +
@@ -27,37 +28,64 @@ func check(err error) {
 	}
 }
 
-func main() {
+func readI3State() (i3.Node, i3.Workspace) {
+	focusedNode, err := i3utils.GetFocusedNode()
+	check(err)
+
 	activeWorkspace, err := i3utils.GetActiveWorkspace()
 	check(err)
-	_, err = i3utils.LaunchTerminalWithCommand(
+	return focusedNode, activeWorkspace
+}
+
+func selectNeoVideSession(activeWorkspace i3.Workspace) error {
+	_, err := i3utils.LaunchTerminalWithCommand(
 		activeWorkspace,
 		SESSIONIZER_COMMAND)
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	i3utils.WaitForClose()
 
 	sessionizerRes, err := osutils.ReadSessionizerRes()
-	check(err)
+	if err != nil {
+		return err
+	}
 
 	if sessionizerRes == "" {
-		fmt.Println("Please select a directory for the session")
-		os.Exit(1)
+		if err != nil {
+			return errors.New("Please select a directory for the session")
+		}
 	}
 	neoVideWmClass := i3utils.GenerateNeoVideWmClassForDir(sessionizerRes)
 
 	_, err = i3utils.MoveToWorkspaceByWmClass(
 		neoVideWmClass,
 		activeWorkspace)
+
 	// if the workspace was moved it already exists and therefore we are
 	// finished
 	if err == nil {
-		os.Exit(0)
+		return nil
 	}
 
 	_, err = i3utils.LaunchNeoVide(
 		activeWorkspace,
 		sessionizerRes,
 		neoVideWmClass)
-	check(err)
+
+	return err
+}
+
+func main() {
+	focusedNode, activeWorkspace := readI3State()
+
+	i3utils.MoveNodeToScratchpad(focusedNode)
+
+	err := selectNeoVideSession(activeWorkspace)
+	if err != nil {
+		i3utils.MoveNodeToWorkspace(focusedNode, activeWorkspace)
+		panic(err)
+	}
+	os.Exit(0)
 }

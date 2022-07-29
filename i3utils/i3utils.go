@@ -22,6 +22,21 @@ func MoveToWorkspaceByWmClass(wmClass string, workspace i3.Workspace) ([]i3.Comm
 	return MoveToWorkspace(selector, workspace)
 }
 
+func MoveToScratchpad(selector string) ([]i3.CommandResult, error) {
+	command := fmt.Sprintf("[%s] move scratchpad", selector)
+	return i3.RunCommand(command)
+}
+
+func MoveNodeToScratchpad(node i3.Node) ([]i3.CommandResult, error) {
+	selector := fmt.Sprintf("con_id=%d", node.ID)
+	return MoveToScratchpad(selector)
+}
+
+func MoveNodeToWorkspace(node i3.Node, workspace i3.Workspace) ([]i3.CommandResult, error) {
+	selector := fmt.Sprintf("con_id=%d", node.ID)
+	return MoveToWorkspace(selector, workspace)
+}
+
 func GetActiveWorkspace() (i3.Workspace, error) {
 	workspaces, err := i3.GetWorkspaces()
 	if err != nil {
@@ -33,4 +48,22 @@ func GetActiveWorkspace() (i3.Workspace, error) {
 		}
 	}
 	return i3.Workspace{}, fmt.Errorf("No active workspace found")
+}
+
+func GetFocusedNode() (i3.Node, error) {
+	tree, err := i3.GetTree()
+	if err != nil {
+		return i3.Node{}, err
+	}
+	root := tree.Root
+	focusedNode := root.FindChild(
+		func(node *i3.Node) bool {
+			return node.Focused
+		},
+	)
+	if focusedNode == nil {
+		return i3.Node{}, fmt.Errorf("No focused node found")
+	}
+	return *focusedNode, nil
+
 }
