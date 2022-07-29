@@ -14,7 +14,6 @@ func GenerateNeoVideWmClassForDir(directory string) string {
 
 func MoveToWorkspace(selector string, workspace i3.Workspace) ([]i3.CommandResult, error) {
 	command := fmt.Sprintf("[%s] move to workspace %v", selector, workspace.Name)
-	fmt.Println(command)
 	return i3.RunCommand(command)
 }
 func MoveToWorkspaceByWmClass(wmClass string, workspace i3.Workspace) ([]i3.CommandResult, error) {
