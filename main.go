@@ -8,7 +8,6 @@ import (
 	"github.com/mogottsch/i3kraken/osutils"
 )
 
-const NEOVIDE_WM_CLASS = "i3-kraken-neovide"
 const SESSIONIZER_COMMAND = "find " +
 	"~/dev " +
 	"~/dev/privat " +
@@ -40,8 +39,11 @@ func main() {
 
 	sessionizerRes, err := osutils.ReadSessionizerRes()
 	check(err)
-	fmt.Println(sessionizerRes)
 
+	if sessionizerRes == "" {
+		fmt.Println("Please select a directory for the session")
+		os.Exit(1)
+	}
 	neoVideWmClass := i3utils.GenerateNeoVideWmClassForDir(sessionizerRes)
 
 	_, err = i3utils.MoveToWorkspaceByWmClass(
