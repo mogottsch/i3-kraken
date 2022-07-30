@@ -36,6 +36,16 @@ func MoveNodeToWorkspace(node i3.Node, workspace i3.Workspace) ([]i3.CommandResu
 	return MoveToWorkspace(selector, workspace)
 }
 
+func DisableFloating(selector string) ([]i3.CommandResult, error) {
+	command := fmt.Sprintf("[%s] floating disable", selector)
+	return i3.RunCommand(command)
+}
+
+func DisableFloatingByWmClass(wmClass string) ([]i3.CommandResult, error) {
+	selector := fmt.Sprintf("class=\"%s\"", wmClass)
+	return DisableFloating(selector)
+}
+
 func GetActiveWorkspace() (i3.Workspace, error) {
 	workspaces, err := i3.GetWorkspaces()
 	if err != nil {

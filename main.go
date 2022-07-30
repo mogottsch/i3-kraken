@@ -66,6 +66,7 @@ func selectNeoVideSession(activeWorkspace i3.Workspace) error {
 	// if the workspace was moved it already exists and therefore we are
 	// finished
 	if err == nil {
+		i3utils.DisableFloatingByWmClass(neoVideWmClass)
 		return nil
 	}
 
@@ -80,9 +81,10 @@ func selectNeoVideSession(activeWorkspace i3.Workspace) error {
 func main() {
 	focusedNode, activeWorkspace := readI3State()
 
-	i3utils.MoveNodeToScratchpad(focusedNode)
+	_, err := i3utils.MoveNodeToScratchpad(focusedNode)
+	check(err)
 
-	err := selectNeoVideSession(activeWorkspace)
+	err = selectNeoVideSession(activeWorkspace)
 	if err != nil {
 		i3utils.MoveNodeToWorkspace(focusedNode, activeWorkspace)
 		panic(err)
