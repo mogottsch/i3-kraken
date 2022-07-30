@@ -17,6 +17,7 @@ const SESSIONIZER_COMMAND = "find " +
 	"~ " +
 	"~/OneDrive/Uni/Master/1.\\ Semester " +
 	"~/go/src/moritz " +
+	"~/go/src/github.com/mogottsch/ " +
 	"~/Sync/ " +
 	"-mindepth 1 -maxdepth 1 -type d -not -name .ansible " +
 	"| fzf" +
@@ -53,9 +54,7 @@ func selectNeoVideSession(activeWorkspace i3.Workspace) error {
 	}
 
 	if sessionizerRes == "" {
-		if err != nil {
-			return errors.New("Please select a directory for the session")
-		}
+		return errors.New("Please select a directory for the session")
 	}
 	neoVideWmClass := i3utils.GenerateNeoVideWmClassForDir(sessionizerRes)
 
@@ -66,7 +65,7 @@ func selectNeoVideSession(activeWorkspace i3.Workspace) error {
 	// if the workspace was moved it already exists and therefore we are
 	// finished
 	if err == nil {
-		i3utils.DisableFloatingByWmClass(neoVideWmClass)
+		_, _ = i3utils.DisableFloatingByWmClass(neoVideWmClass)
 		return nil
 	}
 
@@ -80,13 +79,19 @@ func selectNeoVideSession(activeWorkspace i3.Workspace) error {
 
 func main() {
 	focusedNode, activeWorkspace := readI3State()
+	isNeoVideFocused := focusedNode.Name == "Neovide"
 
-	_, err := i3utils.MoveNodeToScratchpad(focusedNode)
-	check(err)
+	if isNeoVideFocused {
+		_, err := i3utils.MoveNodeToScratchpad(focusedNode)
+		check(err)
+	}
 
-	err = selectNeoVideSession(activeWorkspace)
+	err := selectNeoVideSession(activeWorkspace)
 	if err != nil {
-		i3utils.MoveNodeToWorkspace(focusedNode, activeWorkspace)
+		if isNeoVideFocused {
+			_, _ = i3utils.MoveNodeToWorkspace(focusedNode, activeWorkspace)
+			_, _ = i3utils.DisableFloatingByNode(focusedNode)
+		}
 		panic(err)
 	}
 	os.Exit(0)

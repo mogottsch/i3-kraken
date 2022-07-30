@@ -45,6 +45,10 @@ func DisableFloatingByWmClass(wmClass string) ([]i3.CommandResult, error) {
 	selector := fmt.Sprintf("class=\"%s\"", wmClass)
 	return DisableFloating(selector)
 }
+func DisableFloatingByNode(node i3.Node) ([]i3.CommandResult, error) {
+	selector := fmt.Sprintf("con_id=%d", node.ID)
+	return DisableFloating(selector)
+}
 
 func GetActiveWorkspace() (i3.Workspace, error) {
 	workspaces, err := i3.GetWorkspaces()
