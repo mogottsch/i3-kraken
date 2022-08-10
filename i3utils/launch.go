@@ -8,7 +8,7 @@ import (
 
 func LaunchNeoVide(workspace i3.Workspace, directory string, wmClass string) ([]i3.CommandResult, error) {
 	command := fmt.Sprintf(
-		"workspace %v; exec zsh -ci \"cd %s && neovide --x11-wm-class %v .\"",
+		"workspace %v; exec zsh -ci \"cd %s && neovide --multigrid --x11-wm-class %v .\"",
 		workspace.Name,
 		directory,
 		wmClass)
