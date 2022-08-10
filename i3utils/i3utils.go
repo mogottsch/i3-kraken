@@ -2,14 +2,18 @@ package i3utils
 
 import (
 	"fmt"
+	"hash/crc32"
 
 	"go.i3wm.org/i3/v4"
 )
 
-const NEOVIDE_WM_CLASS = "i3-kraken-neovide"
+const NEOVIDE_WM_CLASS = "i3_kraken_neovide"
 
 func GenerateNeoVideWmClassForDir(directory string) string {
-	return NEOVIDE_WM_CLASS + "-" + directory
+	hashDecimal := crc32.ChecksumIEEE([]byte(directory))
+	hashHex := fmt.Sprintf("%x", hashDecimal)
+
+	return NEOVIDE_WM_CLASS + "_" + hashHex
 }
 
 func MoveToWorkspace(selector string, workspace i3.Workspace) ([]i3.CommandResult, error) {
